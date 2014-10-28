@@ -23,6 +23,7 @@
 			<artifactId>beam-gpf</artifactId>
 			<version>5.0</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.esa.beam</groupId>
 			<artifactId>beam-envisat-reader</artifactId>
@@ -32,6 +33,11 @@
                         <groupId>org.esa.beam</groupId>
                         <artifactId>beam-geotiff</artifactId>
                         <version>5.0</version>
+		</dependency>
+		<dependency>
+		<groupId>org.esa.beam</groupId>
+		<artifactId>beam-binning</artifactId>
+		<version>5.0</version>
 		</dependency>
                 <dependency>
                         <groupId>org.esa.beam</groupId>

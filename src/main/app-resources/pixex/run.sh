@@ -25,27 +25,23 @@ function cleanExit ()
 }
 trap cleanExit EXIT
 
+# get the points
+:
+
 # create the output folder to store the output products
 mkdir -p $TMPDIR/output
 export OUTPUTDIR=$TMPDIR/output
-format="`ciop-getparam format`"
-
-[ "$format" != "BEAM-DIMAP" ] && [ "$format" != "GeoTIFF" ] && exit $ERR_FORMAT
-
-aerosolType="`ciop-getparam aerosolType`"
-bandNames="`ciop-getparam bandNames`"
-invalidPixel="`ciop-getparam invalidPixel`"
-maskExpression="`ciop-getparam maskExpression`"
-surfPress="`ciop-getparam surfPress`"
-tauAero550="`ciop-getparam tauAero550`"
-uH2o="`ciop-getparam uH2o`"
-uO3="`ciop-getparam uO3`"
-useMerisADS="`ciop-getparam useMerisADS`"
-
 
 # loop and process all MERIS products
-while read inputfile 
+while read pair 
 do
+  # get the run id to keep the traceability
+  run="`echo $pair | cut -d ',' -f 1`"
+
+  # get the Level 2
+  l2="`echo $pair | cut -d ',' -f 2 | ciop-copy -o $TMPDIR -`"
+
+  
   # report activity in log
   ciop-log "INFO" "Retrieving $inputfile from storage"
   

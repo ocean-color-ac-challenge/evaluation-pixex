@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application id="beam_atcorr">
   <jobTemplates>
-  
-    <!-- BEAM Atmos Corr operator job template  -->
-    <jobTemplate id="SmacOp">
-      <streamingExecutable>/application/smacop/run.sh</streamingExecutable>
+    <jobTemplate id="List">
+          <streamingExecutable>/application/list/run.sh</streamingExecutable>
+                <defaultParameters/>
+    </jobTemplate>
+    <jobTemplate id="PixEx">
+      <streamingExecutable>/application/pixex/run.sh</streamingExecutable>
       <defaultParameters>						
         <parameter id="format">BEAM-DIMAP</parameter>
 	<parameter id="startdate" title="Start date" abstract="Start date of the TOI. Used as queryable for the MERIS Level 1 catalogue" scope="runtime" type="opensearch" target="time:start">2012-04-05</parameter>
@@ -26,12 +28,19 @@
 </jobTemplates>	
  <workflow id="beam_atcorr" title="BEAM Atmos Correction" abstract="This example runs the SmacOp atmospheric correction">						
     <workflowVersion>1.0</workflowVersion>
-    <node id="node_smacop">				
-      <job id="SmacOp"></job>			
+    <node id="node_list">				
+      <job id="List"></job>			
       <sources>
-        <source refid="cas:series">http://catalogue.terradue.int/catalogue/search/MER_RR__1P/description</source>
+        <source id="runs" title="runs for extraction" abstract="List of run ids" refid="string:list">0000001-141024163151211-oozie-oozi-W</source>
       </sources>
       <parameters/>					
     </node>
+    <node id="node_pixex">
+      <job id="PixEx"></job>
+      <sources>
+        <source refid="wf:node">node_list</source>
+      </sources>
+      <parameters/>
+    </node> 
   </workflow>
 </application>
