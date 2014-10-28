@@ -57,7 +57,7 @@ do
   	-Pvariable_path=$TMPDIR \
   	-Poutput_path=$OUTPUTDIR \
   	-Pprefix=$run \
-  	-Pcoordinates=$TMPDIR/placemark.xml \
+  	-Pcoordinates=$TMPDIR/poi.csv \
   	${_CIOP_APPLICATION_PATH}/pixex/libexec/PixEx.xml &> /dev/null		
   	
   res=$?
@@ -65,6 +65,7 @@ do
   
   ciop-log "INFO" "Publishing extracted pixel values"
   ciop-publish -m $OUTPUTDIR/*
+  ciop-publish -m $TMPDIR/poi.csv
   
   # cleanup
   rm -fr $l2 $OUTPUTDIR/* 
