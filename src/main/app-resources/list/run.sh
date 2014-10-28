@@ -31,7 +31,7 @@ do
 
   hadoop dfs -ls hdfs://10.16.10.45:8020/tmp/sandbox/run/$run/_results/  | grep "/tmp/" | awk '{print $8 }' | while read result
   do 
-  	echo "$run,$result" | ciop-publish -s  
+  	echo "$run,hdfs://10.16.10.45:8020$result" | ciop-publish -s  
   done
 
 done

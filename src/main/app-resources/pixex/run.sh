@@ -42,7 +42,7 @@ do
   run="`echo $pair | cut -d ',' -f 1`"
 
   # get the Level 2
-  l2ref="`echo $pair | cut -d ',' -f 2 | ciop-copy -o $TMPDIR -`"
+  l2ref="`echo $pair | cut -d ',' -f 2`"
   ciop-log "INFO" "Retrieving $l2ref from storage"
   l2="`echo $l2ref | ciop-copy -o $TMPDIR -`"
 
