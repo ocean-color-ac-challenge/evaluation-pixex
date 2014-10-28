@@ -32,6 +32,9 @@ trap cleanExit EXIT
 mkdir -p $TMPDIR/output
 export OUTPUTDIR=$TMPDIR/output
 
+# get the POIs
+echo "`ciop-getparam poi`" > $TMPDIR/poi.csv
+
 # loop and process all MERIS products
 while read pair 
 do
