@@ -17,7 +17,7 @@ function cleanExit ()
    case "$retval" in
      $SUCCESS)      msg="Processing successfully concluded";;
      $ERR_NOPARAMS) msg="Expression not defined";;
-     $ERR_BEAM)    msg="Beam failed to process product $product (Java returned $res).";;
+     $ERR_BEAM)    msg="BEAM failed to process product $product (Java returned $res).";;
      *)             msg="Unknown error";;
    esac
    [ "$retval" != "0" ] && ciop-log "ERROR" "Error $retval - $msg, processing aborted" || ciop-log "INFO" "$msg"
@@ -39,49 +39,33 @@ do
   run="`echo $pair | cut -d ',' -f 1`"
 
   # get the Level 2
-  l2="`echo $pair | cut -d ',' -f 2 | ciop-copy -o $TMPDIR -`"
+  l2ref="`echo $pair | cut -d ',' -f 2 | ciop-copy -o $TMPDIR -`"
+  ciop-log "INFO" "Retrieving $l2ref from storage"
+  l2="`echo $l2ref | ciop-copy -o $TMPDIR -`"
 
-  
-  # report activity in log
-  ciop-log "INFO" "Retrieving $inputfile from storage"
-  
-  # retrieve the remote geotiff product to the local temporary folder
-  retrieved=`ciop-copy -o $TMPDIR $inputfile`
-  
   # check if the file was retrieved
   [ "$?" == "0" -a -e "$retrieved" ] || exit $ERR_NOINPUT
   
-  # report activity
-  ciop-log "INFO" "Retrieved `basename $retrieved`, moving on to smac operator"
-	
-outputname=`basename $retrieved`
-  
-  $_CIOP_APPLICATION_PATH/shared/bin/gpt.sh SmacOp \
-    -SsourceProduct=$retrieved \
-    -f $format \
-    -t $OUTPUTDIR/$outputname \
-    -PaerosolType=$aerosolType \
-    -PbandNames="$bandNames" \
-    -PinvalidPixel=$invalidPixel \
-    -PmaskExpression="$maskExpression" \
-    -PsurfPress=$surfPress \
-    -PtauAero550=$tauAero550 \
-    -PuH2o=$uH2o \
-    -PuO3=$uO3 \
-    -PuseMerisADS=$useMerisADS 
-  
+  ciop-log "INFO" "Apply BEAM PixEx Operator to `basename $l2`"
+
+  # apply PixEx BEAM operator
+  $_CIOP_APPLICATION_PATH/shared/bin/gpt.sh \
+  	-Pvariable=`basename $l2` \
+  	-Pvariable_path=$TMPDIR \
+  	-Poutput_path=$OUTPUTDIR \
+  	-Pprefix=$run \
+  	-Pcoordinates=$TMPDIR/placemark.xml \
+  	${_CIOP_APPLICATION_PATH}/pixex/libexec/PixEx.xml &> /dev/null		
+  	
   res=$?
   [ $res != 0 ] && exit $ERR_BEAM
   
-  tar -C $OUTPUTDIR -cvzf $TMPDIR/$outputname.tgz $outputname.dim $outputname.data
-  
-  ciop-log "INFO" "Publishing $outputname.tgz"
-  ciop-publish -m $TMPDIR/$outputname.tgz
+  ciop-log "INFO" "Publishing extracted pixel values"
+  ciop-publish -m $OUTPUTDIR/*
   
   # cleanup
-  rm -fr $retrieved $OUTPUTDIR/$outputname.d* $TMPDIR/$outputname.tgz 
+  rm -fr $l2 $OUTPUTDIR/* 
 
 done
 
 exit 0
-
