@@ -35,9 +35,15 @@ export OUTPUTDIR=$TMPDIR/output
 # get the POIs
 echo "`ciop-getparam poi`" > $TMPDIR/poi.csv
 
+# get the window size
+window="`ciop-getparam window`"
+# get the aggregation
+aggregation="`ciop-getparam aggregation`"
+
 # loop and process all MERIS products
 while read pair 
 do
+  
   # get the run id to keep the traceability
   run="`echo $pair | cut -d ',' -f 1`"
 
@@ -47,24 +53,30 @@ do
   l2="`echo $l2ref | ciop-copy -o $TMPDIR -`"
 
   # check if the file was retrieved
-  [ "$?" == "0" -a -e "$retrieved" ] || exit $ERR_NOINPUT
+  [ "$?" == "0" ] || exit $ERR_NOINPUT
   
   ciop-log "INFO" "Apply BEAM PixEx Operator to `basename $l2`"
-
+  
   # apply PixEx BEAM operator
   $_CIOP_APPLICATION_PATH/shared/bin/gpt.sh \
-  	-Pvariable=`basename $l2` \
+  	-Pvariable=`basename $l2`.dim \
   	-Pvariable_path=$TMPDIR \
   	-Poutput_path=$OUTPUTDIR \
   	-Pprefix=$run \
   	-Pcoordinates=$TMPDIR/poi.csv \
-  	${_CIOP_APPLICATION_PATH}/pixex/libexec/PixEx.xml &> /dev/null		
+	-PwindowSize=$window \
+	-PaggregatorStrategyType="$aggregation" \
+	${_CIOP_APPLICATION_PATH}/pixex/libexec/PixEx.xml &> /dev/null		
   	
   res=$?
   [ $res != 0 ] && exit $ERR_BEAM
-  
+ 
+  result="`find $OUTPUTDIR -name "$run*measurements.txt"`"
+  cat $result |  tail -n +7 > $TMPDIR/csv
+  mv $TMPDIR/csv $result 
+
   ciop-log "INFO" "Publishing extracted pixel values"
-  ciop-publish -m $OUTPUTDIR/*
+  ciop-publish -m $result
   ciop-publish -m $TMPDIR/poi.csv
   
   # cleanup
