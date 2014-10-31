@@ -8,11 +8,11 @@
     <jobTemplate id="PixEx">
       <streamingExecutable>/application/pixex/run.sh</streamingExecutable>
       <defaultParameters>						
-        <parameter id="poi" title="List of POI" abstract="List of POIS (Name, Latitude, Longitude) tab separated values">Name	Latitude	Longitude
-        BOUS	43.367	7.9
-        AAOT	45.314	12.508
-        MOBY	20.828	-157.193
-        TEST	55.78	19.20</parameter>
+        <parameter id="poi" title="List of POI" abstract="List of POIS (Name, Latitude, Longitude) tab separated values">Name,Latitude,Longitude
+        BOUS,43.367,7.9
+        AAOT,45.314,12.508
+        MOBY,20.828,-157.193
+        TEST,55.78,19.20</parameter>
       <parameter id="window" title="Window size" abstract="The window size specifies the number of pixels surrounding the pixels derived from the given geographic coordinates to be exported">3</parameter>
       <parameter id="aggregation" title="Pixel value aggregation method" abstract="The aggregation methods that may be used are: min, exports the minimum of the window values; max, exports the maximum of the window values; mean, exports mean and standard deviation of the window values or median, exports the median of the window values"></parameter> 
      </defaultParameters>
@@ -26,7 +26,7 @@
     <node id="node_list">				
       <job id="List"></job>			
       <sources>
-        <source id="runs" title="runs for extraction" abstract="List of run ids" refid="string:list">0000024-141024163151211-oozie-oozi-W;http://sb-10-16-10-45.dev.terradue.int:50070/webhdfs/v1/tmp/sandbox/run/0000024-141024163151211-oozie-oozi-W/results.metalink?op=OPEN,0000025-141024163151211-oozie-oozi-W;http://sb-10-16-10-45.dev.terradue.int:50070/webhdfs/v1/tmp/sandbox/run/0000025-141024163151211-oozie-oozi-W/results.metalink?op=OPEN</source>
+        <source id="runs" title="runs for extraction" abstract="List of run ids" refid="string:list">0000004-141031135539424-oozie-oozi-W;http://sb-10-15-25-18.eceo.terradue.int:50070/webhdfs/v1/tmp/sandbox/run/0000004-141031135539424-oozie-oozi-W/results.metalink?op=OPEN,0000006-141031135539424-oozie-oozi-W;http://sb-10-15-25-18.eceo.terradue.int:50070/webhdfs/v1/tmp/sandbox/run/0000006-141031135539424-oozie-oozi-W/results.metalink?op=OPEN</source>
       </sources>
       <parameters/>					
     </node>

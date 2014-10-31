@@ -33,7 +33,7 @@ mkdir -p $TMPDIR/output
 export OUTPUTDIR=$TMPDIR/output
 
 # get the POIs
-echo "`ciop-getparam poi`" > $TMPDIR/poi.csv
+echo "`ciop-getparam poi | tr "," "\t"`" > $TMPDIR/poi.csv
 
 # get the window size
 window="`ciop-getparam window`"
@@ -54,8 +54,10 @@ do
 
   # check if the file was retrieved
   [ "$?" == "0" ] || exit $ERR_NOINPUT
-  
-  ciop-log "INFO" "Apply BEAM PixEx Operator to `basename $l2`"
+ 
+  prddate="`basename $l2 | cut -c 15-29`"
+ 
+  ciop-log "INFO" "Apply BEAM PixEx Operator to `basename $l2` of run $run with date $prddate"
 set -x  
   # apply PixEx BEAM operator
   $_CIOP_APPLICATION_PATH/shared/bin/gpt.sh \
@@ -73,12 +75,11 @@ set -x
 find $TMPDIR
 
   result="`find $OUTPUTDIR -name "$run*measurements.txt"`"
-  cat "$result" |  tail -n +7 > $TMPDIR/csv
-  result="`echo $result | tr " " "_"`"
-  mv $TMPDIR/csv "$result" 
+  cat "$result" |  tail -n +7 | tr "\t" "," | awk -f $_CIOP_APPLICATION_PATH/pixex/libexec/tidy.awk -v run=$run -v date=$prddate - > $TMPDIR/csv
+  mv $TMPDIR/csv "$OUTPUTDIR/`basename $l2`.txt" 
 
   ciop-log "INFO" "Publishing extracted pixel values"
-  ciop-publish -m "$result"
+  ciop-publish -m "$OUTPUTDIR/`basename $l2`.txt"
   ciop-publish -m $TMPDIR/poi.csv
   
   # cleanup
