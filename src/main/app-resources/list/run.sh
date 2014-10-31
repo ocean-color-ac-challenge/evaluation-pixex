@@ -23,18 +23,17 @@ function cleanExit ()
 }
 trap cleanExit EXIT
 
-# get the namenode
-namenode_host=`xsltproc --stringparam name fs.default.name /usr/lib/ciop/xsl/core-default.xsl /etc/hadoop/conf/core-site.xml`
-
 # loop and process all MERIS products
-while read run
+while read pair
 do
+  run="`echo $pair | cut -d ";" -f 1`"
+  metalink="`echo $pair | cut -d ";" -f 2`"
   # report activity in log
   ciop-log "INFO" "Listing $run"
 
-  hadoop dfs -ls $namenode_host/tmp/sandbox/run/$run/_results/  | grep "/tmp/" | awk '{print $8 }' | while read result
+  curl -L $metalink | xsltproc /application/list/xsl/metalink.xsl - | while read result
   do 
-  	echo "$run,${namenode_host}${result}" | ciop-publish -s  
+  	echo "$run,$result" | ciop-publish -s  
   done
 
 done

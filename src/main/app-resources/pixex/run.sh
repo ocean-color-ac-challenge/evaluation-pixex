@@ -50,13 +50,13 @@ do
   # get the Level 2
   l2ref="`echo $pair | cut -d ',' -f 2`"
   ciop-log "INFO" "Retrieving $l2ref from storage"
-  l2="`echo $l2ref | ciop-copy -o $TMPDIR -`"
+  l2="`echo $l2ref | ciop-copy -o $TMPDIR - | sed "s/.L2//"`"
 
   # check if the file was retrieved
   [ "$?" == "0" ] || exit $ERR_NOINPUT
   
   ciop-log "INFO" "Apply BEAM PixEx Operator to `basename $l2`"
-  
+set -x  
   # apply PixEx BEAM operator
   $_CIOP_APPLICATION_PATH/shared/bin/gpt.sh \
   	-Pvariable=`basename $l2`.dim \
@@ -66,17 +66,19 @@ do
   	-Pcoordinates=$TMPDIR/poi.csv \
 	-PwindowSize=$window \
 	-PaggregatorStrategyType="$aggregation" \
-	${_CIOP_APPLICATION_PATH}/pixex/libexec/PixEx.xml &> /dev/null		
+	${_CIOP_APPLICATION_PATH}/pixex/libexec/PixEx.xml &> /tmp/`uuidgen`.log #dev/null		
   	
   res=$?
   [ $res != 0 ] && exit $ERR_BEAM
- 
+find $TMPDIR
+
   result="`find $OUTPUTDIR -name "$run*measurements.txt"`"
-  cat $result |  tail -n +7 > $TMPDIR/csv
-  mv $TMPDIR/csv $result 
+  cat "$result" |  tail -n +7 > $TMPDIR/csv
+  result="`echo $result | tr " " "_"`"
+  mv $TMPDIR/csv "$result" 
 
   ciop-log "INFO" "Publishing extracted pixel values"
-  ciop-publish -m $result
+  ciop-publish -m "$result"
   ciop-publish -m $TMPDIR/poi.csv
   
   # cleanup
