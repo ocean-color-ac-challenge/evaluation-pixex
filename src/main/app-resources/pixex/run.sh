@@ -55,7 +55,8 @@ do
   # check if the file was retrieved
   [ "$?" == "0" ] || exit $ERR_NOINPUT
  
-  prddate="`basename $l2 | cut -c 15-29`"
+  l2b="`basename $l2`"
+  prddate="${l2b:27:28}-${l2b:25:27}-${l2b:18:24}"
  
   ciop-log "INFO" "Apply BEAM PixEx Operator to `basename $l2` of run $run with date $prddate"
 set -x  
